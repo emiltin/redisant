@@ -27,6 +27,13 @@ RSpec.describe Record do
       expect(record.attribute(:id)).to eq(nil)
       expect(record.attribute(:name)).to eq('bike')
     end
+
+    it "should store and retreive Time objects" do
+      record = Record.build alarm_at: Time.new(2015,12,7,12,34,57)
+      record = Record.first
+      expect(record.attribute(:alarm_at)).to be_a(Time)
+      expect(record.attribute(:alarm_at)).to eq(Time.new(2015,12,7,12,34,57))
+    end
   end
 
   describe "#dirty?" do
@@ -67,6 +74,7 @@ RSpec.describe Record do
       record = Record.first
       expect(record.dirty?).to eq(false)      
     end
+
   end
 
   describe "#build" do

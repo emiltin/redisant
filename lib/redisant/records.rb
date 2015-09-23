@@ -1,5 +1,6 @@
 require 'set'
 require 'json'
+require 'time'
 
 class Record
   include AttributeBuilder
@@ -156,7 +157,8 @@ class Record
   end
   
   def load_attributes
-    @attributes = decode_attributes $redis.hgetall(member_key('attributes'))
+    decoded = decode_attributes($redis.hgetall(member_key('attributes')))
+    @attributes = restore_attribute_types decoded
     @dirty = false
   end
 
@@ -258,6 +260,17 @@ class Record
       decoded[pair[0]] = JSON.parse pair[1], quirks_mode: true
     end
     @attributes = decoded
+  end
+  
+  def restore_attribute_types attributes
+    restored = {}
+    attributes.each_pair do |k,v|
+      time_match = /(.+)_at$/.match k
+      if time_match
+        restored[k] = Time.parse v
+      end
+    end
+    attributes.merge! restored
   end
   
   def destroy_relations
