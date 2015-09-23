@@ -27,7 +27,46 @@ RSpec.describe Record do
       expect(record.attribute(:id)).to eq(nil)
       expect(record.attribute(:name)).to eq('bike')
     end
+  end
 
+  describe "#dirty?" do
+    it "should be false for new records without attributes" do
+      record = Record.new
+      expect(record.dirty?).to eq(false)
+    end
+
+    it "should be true for new records with attributes" do
+      record = Record.new name: 'Tiger'
+      expect(record.dirty?).to eq(true)
+    end
+
+    it "should be true after setting attribute" do
+      record = Record.new
+      expect(record.dirty?).to eq(false)
+      record.set_attribute :name, 'Tiger'
+      expect(record.dirty?).to eq(true)      
+    end
+
+    it "should be true after setting attributes" do
+      record = Record.new
+      expect(record.dirty?).to eq(false)
+      record.attributes = {name: 'Tiger'}
+      expect(record.dirty?).to eq(true)      
+    end
+
+    it "should be false after saving" do
+      record = Record.new name: 'Cat'
+      expect(record.dirty?).to eq(true)
+      record.save
+      expect(record.dirty?).to eq(false)      
+    end
+
+    it "should be false after loading" do
+      record = Record.new name: 'Cat'
+      record.save
+      record = Record.first
+      expect(record.dirty?).to eq(false)      
+    end
   end
 
   describe "#build" do

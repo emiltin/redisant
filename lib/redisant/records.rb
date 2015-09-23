@@ -14,6 +14,7 @@ class Record
     @id = attributes.delete(:id) if attributes
     @attributes = stringify_attributes(attributes) || {}
     setup_relations if respond_to? :setup_relations
+    @dirty = attributes != nil
   end
 
   def class_name
@@ -72,7 +73,16 @@ class Record
   def self.count
     $redis.zcount class_key('ids'), '-inf', '+inf'
   end
-
+  
+  # dirty
+  def dirty?
+    @dirty
+  end
+  
+  def dirty
+    @dirty = true
+  end
+  
   # crud
   def self.build attributes=nil
     object = self.new attributes
@@ -129,10 +139,11 @@ class Record
 
   def set_attribute key, value
     @attributes[key.to_s] = value
+    @dirty = true
   end
   
   def update_attribute key, value
-    @attributes[key] = value
+    set_attribute key, value
     $redis.hset member_key('attributes'), key, value
   end
 
@@ -140,16 +151,19 @@ class Record
   def attributes= attributes
     raise "Invalid arguments" unless attributes.is_a? Hash
     @attributes = stringify_attributes attributes
+    @dirty = true
   end
   
   def load_attributes
     @attributes = decode_attributes $redis.hgetall(member_key('attributes'))
+    @dirty = false
   end
 
   def save_attributes
-    if @attributes.any?
+    if @attributes.any? && dirty?
       synthesize_attributes
       $redis.hmset member_key('attributes'), encode_attributes
+      @dirty = false
     end
   end
   
@@ -161,6 +175,7 @@ class Record
   def destroy_attributes
     $redis.del member_key('attributes')
     @attributes = nil
+    @dirty = false
   end
 
   def cleanup_attributes
