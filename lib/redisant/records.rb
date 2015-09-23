@@ -15,6 +15,7 @@ class Record
     @attributes = stringify_attributes(attributes) || {}
     setup_relations if respond_to? :setup_relations
     @dirty = attributes != nil
+    @id_saved = false
   end
 
   def class_name
@@ -26,6 +27,7 @@ class Record
     raise "Invalid argument" unless id
     return nil unless exists? id
     t = self.new id:id
+    
     t.load
     t
   end
@@ -102,12 +104,11 @@ class Record
 
   def load
     load_attributes
+    @id_saved = true
   end
 
   def save
-    unless @id
-      @id = make_unique_id
-    end  
+    make_unique_id
     add_id
     save_attributes
     true
@@ -187,13 +188,15 @@ class Record
 
   # ids
   def make_unique_id
-    raise 'Already have id' if @id
-    
+    return if @id
     #use optimistic concurrency control:
     #if id is taken, try again until we succeed
     while true
       id = $redis.incr(self.class.class_key('ids:counter')).to_i
-      return id unless self.class.exists? id
+      unless self.class.exists? id
+        @id = id
+        return
+      end
     end
   end
 
@@ -217,13 +220,16 @@ class Record
 
   def add_id
     raise 'Cannot add empty id' unless @id
+    return if @id_saved
     $redis.zadd self.class.class_key('ids'), @id.to_i, @id
+    @id_saved = true
   end
 
   def remove_id
     raise 'Cannot remove empty id' unless @id
     $redis.zrem self.class.class_key('ids'), @id
     @id = nil
+    @id_saved = false
   end
 
   
