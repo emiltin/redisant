@@ -243,8 +243,7 @@ class Record
     synthesized = {}
     self.class.indexes.each_pair do |name,index|
       if index.type=='float'
-         # convert attribute to float
-         # for Time objects, this stores the number of seconds since epoch
+         # for Time objects to_f return number of seconds since epoch
         @attributes["#{name}:float"] = @attributes[name].to_f
       end
     end
