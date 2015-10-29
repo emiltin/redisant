@@ -236,16 +236,18 @@ class Record
 
   
   private
-    
-  # add converted version of attributes which can later be used for sorting
+
+  # redis can only sort by string or float
+  # to sort by eg. Time we store float version of required attributes
   def synthesize_attributes
     synthesized = {}
-    @attributes.each_pair do |k,v|
-      if v.is_a? Time
-        synthesized["#{k}:float"] = v.to_f     # convert time to number of seconds as float
+    self.class.indexes.each_pair do |name,index|
+      if index.type=='float'
+         # convert attribute to float
+         # for Time objects, this stores the number of seconds since epoch
+        @attributes["#{name}:float"] = @attributes[name].to_f
       end
     end
-    @attributes.merge! synthesized
   end
  
   def encode_attributes

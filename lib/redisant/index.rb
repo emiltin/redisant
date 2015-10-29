@@ -1,15 +1,17 @@
 class Index
   
+  attr_reader :name, :class, :options, :type, :order
   def initialize name, klass, options
     @name = name.to_s
     @class = klass
     @options = options
     @type = options[:type].to_s
-    @order = @type=='alpha' ? 'alpha' : ''
     
-    if @type=='time'
+    if @type=='float'
+      @order = ''
       @sort_key = "#{klass.name.downcase}:*:attributes->#{name}:float"
     else
+      @order = 'alpha'
       @sort_key = "#{klass.name.downcase}:*:attributes->#{name}"
     end
   end

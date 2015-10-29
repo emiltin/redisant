@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 class Book < Record
-  attribute :name, index: :alpha
-  attribute :created_at, index: :time
+  attribute :name, index: :string
+  attribute :created_at, index: :float
 end
 
 
