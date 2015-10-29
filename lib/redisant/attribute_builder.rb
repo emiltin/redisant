@@ -7,6 +7,10 @@ module AttributeBuilder
     def attribute name, options={}
       attributes[name.to_s] = options
 
+      if options[:index]
+        index name, type: options[:index]   # add index for attribute
+      end
+
       send :define_method, name.to_s do
         attribute(name.to_s)
       end
