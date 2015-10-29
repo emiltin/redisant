@@ -14,7 +14,7 @@ class Index
       @order = 'alpha'
       @sort_key = "#{klass.name.downcase}:*:attributes->#{name}"
     else
-      raise 'Invalid index type'
+      raise Redisant::InvalidArgument.new 'Invalid index type'
     end
   end
   
@@ -30,7 +30,7 @@ class Index
     elsif options[:order] == :desc
       list = $redis.sort list_key, args.merge( by:@sort_key, order:"#{@order} desc" )
     else
-      raise 'Invalid sort order'
+      raise Redisant::InvalidArgument.new 'Invalid sort order'
     end
     
     list.map do |item|

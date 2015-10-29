@@ -11,7 +11,7 @@ class Record
   attr_reader :attributes
 
   def initialize attributes=nil
-    raise 'Wrong arguments' unless attributes==nil or attributes.is_a? Hash
+    raise Redisant::InvalidArgument.new('Wrong arguments') unless attributes==nil or attributes.is_a? Hash
     @id = attributes.delete(:id) if attributes
     @attributes = stringify_attributes(attributes) || {}
     setup_relations if respond_to? :setup_relations
@@ -25,7 +25,7 @@ class Record
 
   # query
   def self.find id
-    raise "Invalid argument" unless id
+    raise Redisant::InvalidArgument.new("Invalid argument") unless id
     return nil unless exists? id
     t = self.new id:id
     
@@ -34,7 +34,7 @@ class Record
   end
 
   def self.find! id
-    raise "Not found" unless exists? id
+    raise Redisant::InvalidArgument.new("Not found") unless exists? id
     t = self.new id:id
     t.load
     t
@@ -48,7 +48,7 @@ class Record
     sort = options.delete :sort
     if sort
       index = self.find_index sort.to_s
-      raise "Cannot order by #{sort}" unless index
+      raise Redisant::InvalidArgument.new("Cannot order by #{sort}") unless index
       index.objects options
     else
       ids.map { |id| self.find id }
@@ -126,7 +126,7 @@ class Record
   
   # keys
   def member_key str
-    raise 'Cannot make key without id' unless @id
+    raise Redisant::InvalidArgument.new('Cannot make key without id') unless @id
     "#{class_name}:#{@id}:#{str}"
   end
 
@@ -151,7 +151,7 @@ class Record
 
   # all attributes
   def attributes= attributes
-    raise "Invalid arguments" unless attributes.is_a? Hash
+    raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     @attributes = stringify_attributes attributes
     @dirty = true
   end
@@ -206,7 +206,7 @@ class Record
     sort = options.delete :sort
     if sort
       index = self.find_index sort.to_s
-      raise "Cannot order by #{sort}" unless index
+      raise Redisant::InvalidArgument.new("Cannot order by #{sort}") unless index
       index.ids options
     else
       options = {order: :asc}.merge options
@@ -215,20 +215,20 @@ class Record
       elsif options[:order] == :desc
         $redis.zrevrange( class_key('ids'), 0, -1 ).map { |id| id.to_i }
       else
-        raise "Invalid order"
+        raise Redisant::InvalidArgument.new("Invalid order")
       end
     end
   end
 
   def add_id
-    raise 'Cannot add empty id' unless @id
+    raise Redisant::InvalidArgument.new('Cannot add empty id') unless @id
     return if @id_saved
     $redis.zadd self.class.class_key('ids'), @id.to_i, @id
     @id_saved = true
   end
 
   def remove_id
-    raise 'Cannot remove empty id' unless @id
+    raise Redisant::InvalidArgument.new('Cannot remove empty id') unless @id
     $redis.zrem self.class.class_key('ids'), @id
     @id = nil
     @id_saved = false

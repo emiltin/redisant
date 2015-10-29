@@ -122,11 +122,11 @@ RSpec.describe HasMany do
     end
 
     it "should raise if adding anything but a Record" do
-      expect{ @machine1.parts.add Machine}.to raise_exception(InvalidArgument)
+      expect{ @machine1.parts.add Machine}.to raise_exception(Redisant::InvalidArgument)
     end
 
     it "should raise if adding wrong Record type" do
-      expect{ @machine1.parts.add "bad"}.to raise_exception(InvalidArgument)
+      expect{ @machine1.parts.add "bad"}.to raise_exception(Redisant::InvalidArgument)
     end
 
     it "should add items" do

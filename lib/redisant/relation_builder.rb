@@ -27,7 +27,7 @@ module RelationBuilder
     end
     
     def add_relation_definition name, klass
-      raise "Relation #{name} already exists" if relation_definitions[name.to_s]
+      raise Redisant::InvalidArgument.new("Relation #{name} already exists") if relation_definitions[name.to_s]
       relation_definitions[name.to_s] = klass
     end
     

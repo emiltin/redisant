@@ -59,11 +59,11 @@ RSpec.describe HasMany do
     end
 
     it "should raise if adding anything but a Record" do
-      expect{ @house.rooms.add House}.to raise_exception(InvalidArgument)
+      expect{ @house.rooms.add House}.to raise_exception(Redisant::InvalidArgument)
     end
 
     it "should raise if adding wrong Record type" do
-      expect{ @house.rooms.add "bad"}.to raise_exception(InvalidArgument)
+      expect{ @house.rooms.add "bad"}.to raise_exception(Redisant::InvalidArgument)
     end
 
     it "should add items" do

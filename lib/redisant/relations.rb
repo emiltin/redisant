@@ -21,7 +21,7 @@ class BelongsTo < Relation
   
   # keys
   def redis_key
-    raise 'Cannot make key without id' unless @object && @object.id
+    raise Redisant::InvalidArgument.new('Cannot make key without id') unless @object && @object.id
     "#{@object.class_name}:#{@object.id}:belongs_to:#{@name}"
   end
 
@@ -41,8 +41,8 @@ class BelongsTo < Relation
       end
     end
     if item
-      raise 'Wrong object type' unless item.class_name == @name
-      raise 'Missing id' unless item.id
+      raise Redisant::InvalidArgument.new('Wrong object type') unless item.class_name == @name
+      raise Redisant::InvalidArgument.new('Missing id') unless item.id
       $redis.set redis_key, item.id
       @owner = item
       @owner_id = item.id
@@ -74,7 +74,7 @@ class HasMany < Relation
   
   # keys
   def redis_key
-    raise 'Cannot make key without id' unless @object && @object.id
+    raise Redisant::InvalidArgument.new('Cannot make key without id') unless @object && @object.id
     "#{@object.class_name}:#{@object.id}:has_many:#{@name}"
   end
 
@@ -135,8 +135,8 @@ class HasMany < Relation
 
   def add_item item, reprocitate=true
     return unless item
-    raise InvalidArgument.new("Wrong object type, expected #{@class.name}, got #{item.class}") unless item.is_a? Record
-    raise "Wrong object type, expected #{@class.name}, got #{item.class}" unless item.class == @class
+    raise Redisant::InvalidArgument.new("Wrong object type, expected #{@class.name}, got #{item.class}") unless item.is_a? Record
+    raise Redisant::InvalidArgument.new("Wrong object type, expected #{@class.name}, got #{item.class}") unless item.class == @class
     $redis.sadd redis_key, item.id
     dirty
     #update reverse relation
@@ -157,7 +157,7 @@ class HasMany < Relation
       id = item
     else
       klass = Inflector.pluralize(item.class_name)
-      raise "Wrong object type, expected #{@name}, got #{klass}" unless klass == @name
+      raise Redisant::InvalidArgument.new("Wrong object type, expected #{@name}, got #{klass}") unless klass == @name
       id = item.id
     end
     $redis.srem redis_key, id
