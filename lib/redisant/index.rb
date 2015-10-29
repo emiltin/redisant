@@ -10,9 +10,11 @@ class Index
     if @type=='float'
       @order = ''
       @sort_key = "#{klass.name.downcase}:*:attributes->#{name}:float"
-    else
+    elsif @type=='string'
       @order = 'alpha'
       @sort_key = "#{klass.name.downcase}:*:attributes->#{name}"
+    else
+      raise 'Invalid index type'
     end
   end
   
