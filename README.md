@@ -1,6 +1,6 @@
 # Redisant
 
-OSM-like object storage for Redis. Makes it easy to store, find and query objects, and link them via associations.
+ORM-like object storage for Redis. Makes it easy to store, find and query objects, and link them via associations.
 
 NOTE: running the rspec tests requires that redis is running. All data in the database will be deleted.
 
