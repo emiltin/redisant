@@ -8,7 +8,11 @@ module AttributeBuilder
       attributes[name.to_s] = options
 
       if options[:index]
-        index name, type: options[:index]   # add index for attribute
+        index name, type: options[:index]     # add index for attribute
+      end
+
+      if options[:search]
+        finder name, type: options[:search]   # add search for attribute
       end
 
       send :define_method, name.to_s do

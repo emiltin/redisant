@@ -6,6 +6,7 @@ class Record
   include AttributeBuilder
   include RelationBuilder
   include IndexBuilder
+  include SearchBuilder
   
   attr_reader :id
   attr_reader :attributes
@@ -14,6 +15,7 @@ class Record
     raise Redisant::InvalidArgument.new('Wrong arguments') unless attributes==nil or attributes.is_a? Hash
     @id = attributes.delete(:id) if attributes
     @attributes = stringify_attributes(attributes) || {}
+    @prev_attributes = {}
     setup_relations if respond_to? :setup_relations
     @dirty = attributes != nil
     @id_saved = false
@@ -71,6 +73,24 @@ class Record
       t.load
       t
     end
+  end
+  
+  def self.random
+    # there's no easy way to atomically get a random item from a sorted set
+    # so we retry in case we don't get an item (because somebody removed it)
+    while true
+      i = rand count
+      id = $redis.zrange(class_key('ids'), i, i).first
+      if id
+        t = self.new id:id.to_i
+        t.load
+        return t
+      end
+    end
+  end
+
+  def self.where attributes
+    Search.where self, attributes
   end
 
   def self.count
@@ -147,6 +167,7 @@ class Record
   def update_attribute key, value
     set_attribute key, value
     $redis.hset member_key('attributes'), key, value
+    update_search
   end
 
   # all attributes
@@ -160,6 +181,7 @@ class Record
     decoded = decode_attributes($redis.hgetall(member_key('attributes')))
     @attributes = restore_attribute_types decoded
     @dirty = false
+    keep_attributes
   end
 
   def save_attributes
@@ -168,6 +190,7 @@ class Record
       $redis.hmset member_key('attributes'), encode_attributes
       @dirty = false
     end
+    update_search
   end
   
   def update_attributes attributes
@@ -179,6 +202,7 @@ class Record
     $redis.del member_key('attributes')
     @attributes = nil
     @dirty = false
+    update_search
   end
 
   def cleanup_attributes
@@ -282,5 +306,38 @@ class Record
   def stringify_attributes attributes
     attributes.collect {|k,v| [k.to_s,v] }.to_h if attributes
   end
-  
+
+  def keep_attributes
+    if @attributes
+      @prev_attributes = @attributes.dup
+    else
+      @prev_attributes = nil
+    end
+  end
+
+  # search
+  def update_search
+    prev_keys = @prev_attributes ? @prev_attributes.keys : []
+    cur_keys = @attributes? @attributes.keys : []
+    keys = prev_keys | cur_keys
+    keys = keys & self.class.searches.keys    # only attributes with search activated
+    keys.each do |k|
+      prev = @prev_attributes? @prev_attributes[k] : nil
+      cur = @attributes ? @attributes[k] : nil
+      if prev != cur
+        search = self.class.find_search k.to_s
+        if search
+          if prev && cur
+            search.update self, prev, cur
+          elsif cur
+            search.add self, cur
+          elsif prev
+            search.remove self, prev
+          end
+        end
+      end
+    end
+    keep_attributes
+  end
+
 end

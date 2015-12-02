@@ -44,9 +44,6 @@ class Index
     end    
   end
   
-  def rebuild
-  end
-  
   private
   
   def item_value item
