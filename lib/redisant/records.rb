@@ -57,44 +57,28 @@ class Record
     end
   end
 
-  def self.first
-    id = $redis.zrange(class_key('ids'), 0, 0).first
-    if id
-      t = self.new id:id.to_i
-      t.load
-      t
-    end
+  def self.first attributes={}
+    Criteria.new(self).first attributes
   end
 
-  def self.last
-    id = $redis.zrange(class_key('ids'), -1, -1).first
-    if id
-      t = self.new id:id.to_i
-      t.load
-      t
-    end
+  def self.last attributes={}
+    Criteria.new(self).last attributes
   end
   
   def self.random
-    # there's no easy way to atomically get a random item from a sorted set
-    # so we retry in case we don't get an item (because somebody removed it)
-    while true
-      i = rand count
-      id = $redis.zrange(class_key('ids'), i, i).first
-      if id
-        t = self.new id:id.to_i
-        t.load
-        return t
-      end
-    end
+    Criteria.new(self).random
   end
 
   def self.where attributes
-    Search.where self, attributes
+    Criteria.new(self).where attributes
   end
 
   def self.count
-    $redis.zcount class_key('ids'), '-inf', '+inf'
+    Criteria.new(self).count
+  end
+
+  def self.order options
+    Criteria.new(self).order options
   end
   
   # dirty

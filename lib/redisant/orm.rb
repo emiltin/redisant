@@ -10,6 +10,7 @@ require_relative 'relations'
 require_relative 'index'
 require_relative 'search'
 require_relative 'records'
+require_relative 'criteria'
 
 
 

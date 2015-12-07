@@ -210,7 +210,7 @@ RSpec.describe Record do
       record1 = Record.build id:1
       record2 = Record.build id:2
       record3 = Record.build id:3
-      item = Record.first
+      item = Record.first.result
       expect(item).to be_a(Record)
       expect(item.id).to eq(record1.id)
     end
@@ -221,7 +221,7 @@ RSpec.describe Record do
       record1 = Record.build id:1
       record2 = Record.build id:2
       record3 = Record.build id:3
-      item = Record.last
+      item = Record.last.result
       expect(item).to be_a(Record)
       expect(item.id).to eq(record3.id)
     end
@@ -235,7 +235,8 @@ RSpec.describe Record do
       record2 = Record.build id:2
       record3 = Record.build id:25
       ids = [record1.id, record2.id, record3.id]
-      item = Record.random
+      
+      item = Record.random.result
       expect(item).to be_a(Record)
       expect(ids.include? item.id).to eq(true)
     end

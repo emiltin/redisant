@@ -179,28 +179,28 @@ RSpec.describe HasMany do
       @machine1.parts.add @parts
       @machine1.parts.remove nil
       expect(ids @machine1.parts.all).to eq([1,2,3])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove first item" do
       @machine1.parts.add @parts
       @machine1.parts.remove @part1
       expect(ids @machine1.parts.all).to eq([2,3])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove last item" do
       @machine1.parts.add @parts
       @machine1.parts.remove @part3
       expect(ids @machine1.parts.all).to eq([1,2])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove middle item" do
       @machine1.parts.add @parts
       @machine1.parts.remove @part2
       expect(ids @machine1.parts.all).to eq([1,3])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove all items" do
@@ -209,14 +209,14 @@ RSpec.describe HasMany do
       @machine1.parts.remove @part2
       @machine1.parts.remove @part3
       expect(ids @machine1.parts.all).to eq([])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove array of items" do
       @machine1.parts.add @parts
       @machine1.parts.remove [@part1,@part3]
       expect(ids @machine1.parts.all).to eq([2])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
   end
@@ -226,14 +226,14 @@ RSpec.describe HasMany do
       @machine1.parts.add @parts
       @machine1.parts.remove nil
       expect(ids @machine1.parts.all).to eq([1,2,3])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
 
     it "should remove all items" do
       @machine1.parts.add @parts
       @machine1.parts.remove_all
       expect(ids @machine1.parts.all).to eq([])      
-      expect(Part.count).to eq(3)      
+      expect(Part.count.to_int).to eq(3)      
     end
   end
   

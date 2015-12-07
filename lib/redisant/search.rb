@@ -29,13 +29,17 @@ class Search
     $redis.srem key(value), record.id.to_s
   end
   
-  def self.where klass, attributes
+  def self.where klass, attributes, store=nil
     keys = []
     attributes.each_pair do |k,v|
       keys << "#{klass.name.downcase}:search:#{k}:#{v}"
     end
-    got = $redis.sinter(keys)
-    got.map { |id| id.to_i }
+    if store
+      $redis.sinterstore(store, keys)
+    else
+      got = $redis.sinter(keys)
+      got.map { |id| id.to_i } if got
+    end
   end
   
   private

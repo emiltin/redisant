@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 class Book < Record
-  attribute :name, index: :string
-  attribute :created_at, index: :float
+  attribute :name, index: :string, search: true
+  attribute :created_at, index: :float, search: true
 end
 
 
@@ -40,5 +40,5 @@ RSpec.describe Record do
       expect(ids).to eq([2,1,3])
     end
   end
-  
+
 end

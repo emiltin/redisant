@@ -23,19 +23,18 @@ class Index
   end  
 
   def ids options={}
+    key = options.delete(:sort_key) || list_key
     options = { order: :asc, offset:0, limit:-1 }.merge options
-    args = { limit: [options[:offset], options[:limit]] }
+    args = { limit: [options[:offset], options[:limit]], by: @sort_key }
     if options[:order] == :asc
-      list = $redis.sort list_key, args.merge( by:@sort_key, order:"#{@order} asc" )
+      args.merge! order:"#{@order} asc"
     elsif options[:order] == :desc
-      list = $redis.sort list_key, args.merge( by:@sort_key, order:"#{@order} desc" )
+      args.merge! order:"#{@order} desc"
     else
       raise Redisant::InvalidArgument.new 'Invalid sort order'
     end
-    
-    list.map do |item|
-      item.to_i
-    end
+    ids = $redis.sort(key, args)
+    ids.map { |t| t.to_i } if ids
   end
 
   def objects options={}
