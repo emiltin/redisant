@@ -34,6 +34,7 @@ class Criteria
     criteria[:where].merge!(attributes)
     criteria[:offset] = 0
     criteria[:limit] = 1
+    criteria[:order] = :asc
     self
   end
 

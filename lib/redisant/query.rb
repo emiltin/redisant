@@ -88,7 +88,6 @@ class Query
     # combine search sets to temporary set that we can sort later
     @set = "tmp:#{rand(36**16).to_s(36)}"
     Search.where @criteria.object_class, @criteria.get_conditions, @set
-    Search.where @criteria.object_class, @criteria.get_conditions, @set
     @del = true
   end
 
