@@ -19,13 +19,13 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
       
-      expect(Boat.where(type:'ferry').to_ary).to eq([1])
-      expect(Boat.where(type:'yacht').to_ary).to eq([2,3])
-      expect(Boat.where(type:'raft').to_ary).to eq([])
+      expect(Boat.where(type:'ferry').ids).to eq([1])
+      expect(Boat.where(type:'yacht').ids).to eq([2,3])
+      expect(Boat.where(type:'raft').ids).to eq([])
 
-      expect(Boat.where(color:'white').to_ary).to eq([1,2])
-      expect(Boat.where(color:'blue').to_ary).to eq([3])
-      expect(Boat.where(color:'red').to_ary).to eq([])
+      expect(Boat.where(color:'white').ids).to eq([1,2])
+      expect(Boat.where(color:'blue').ids).to eq([3])
+      expect(Boat.where(color:'red').ids).to eq([])
     end
   end
 
@@ -35,15 +35,11 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
       
-      got = []
-      Boat.where(type:'yacht').each { |boat| got << boat }
-      expect(got).to eq([2,3])
+      expect(Boat.where(type:'yacht').ids).to eq([2,3])
 
-      got = Boat.where(color:'white').map { |boat| boat }
-      expect(got).to eq([1,2])
+      expect(Boat.where(color:'white').ids).to eq([1,2])
 
-      got = Boat.where(type:'yacht')
-      expect(got.size).to eq(2)
+      expect(Boat.where(type:'yacht').ids.size).to eq(2)
     end
   end
 
@@ -53,9 +49,9 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
             
-      expect(Boat.where(type:'ferry').where(color:'white').to_ary).to eq([1])
-      expect(Boat.where(type:'ferry').where(color:'blue').to_ary).to eq([])
-      expect(Boat.where(type:'yacht').where(size:'small').to_ary).to eq([])
+      expect(Boat.where(type:'ferry').where(color:'white').ids).to eq([1])
+      expect(Boat.where(type:'ferry').where(color:'blue').ids).to eq([])
+      expect(Boat.where(type:'yacht').where(size:'small').ids).to eq([])
     end
   end
 
@@ -65,16 +61,16 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      expect(Boat.where(type:'ferry', color:'white').to_ary).to eq([1])
-      expect(Boat.where(type:'ferry', color:'blue').to_ary).to eq([])
-      expect(Boat.where(type:'yacht', color:'white').to_ary).to eq([2])
-      expect(Boat.where(type:'yacht', color:'blue').to_ary).to eq([3])
+      expect(Boat.where(type:'ferry', color:'white').ids).to eq([1])
+      expect(Boat.where(type:'ferry', color:'blue').ids).to eq([])
+      expect(Boat.where(type:'yacht', color:'white').ids).to eq([2])
+      expect(Boat.where(type:'yacht', color:'blue').ids).to eq([3])
     end
   end
 
   describe "#where" do
     it "should not find anything for attributes without search" do
-      expect(Boat.where(size:'big').to_ary).to eq([])
+      expect(Boat.where(size:'big').ids).to eq([])
     end
   end
 
@@ -84,7 +80,9 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
       
-      expect(Boat.count.to_int).to eq(3)
+      expect(Boat.count.result).to eq(3)
+      
+      # check compare methods:
       expect(Boat.count == 3).to eq(true)
       expect(Boat.count != 2).to eq(true)
       expect(Boat.count > 2).to eq(true)
@@ -112,8 +110,8 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
       
-      boat = Boat.where(type:'yacht').random
-      expect([2,3]).to include(boat.id)
+      boat = Boat.where(type:'yacht').random.ids
+      expect([2,3]).to include(boat)
     end
   end
 
@@ -168,11 +166,11 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white'
       boat2 = Boat.build id:2, type:'yacht', color:'white'
 
-      expect(Boat.where(color:'white').to_ary).to eq([1,2])
+      expect(Boat.where(color:'white').ids).to eq([1,2])
       boat1.destroy
-      expect(Boat.where(color:'white').to_ary).to eq([2])
+      expect(Boat.where(color:'white').ids).to eq([2])
       boat2.destroy
-      expect(Boat.where(color:'white').to_ary).to eq([])
+      expect(Boat.where(color:'white').ids).to eq([])
     end
   end
 
@@ -181,13 +179,13 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white'
       boat2 = Boat.build id:2, type:'yacht', color:'white'
 
-      expect(Boat.where(color:'white').to_ary).to eq([1,2])
-      expect(Boat.where(color:'blue').to_ary).to eq([])
+      expect(Boat.where(color:'white').ids).to eq([1,2])
+      expect(Boat.where(color:'blue').ids).to eq([])
       
       boat1.update_attributes color:'blue'
 
-      expect(Boat.where(color:'white').to_ary).to eq([2])
-      expect(Boat.where(color:'blue').to_ary).to eq([1])      
+      expect(Boat.where(color:'white').ids).to eq([2])
+      expect(Boat.where(color:'blue').ids).to eq([1])      
     end
   end
 
@@ -195,27 +193,27 @@ RSpec.describe Record do
     it "should update search" do
       boat1 = Boat.build id:1, type:'ferry', color:'white'
       boat2 = Boat.build id:2, type:'ferry', color:'blue'
-      expect(Boat.where(color:'blue').to_ary).to eq([2])
+      expect(Boat.where(color:'blue').ids).to eq([2])
       boat1.update_attribute :color, 'blue'
-      expect(Boat.where(color:'blue').to_ary).to eq([1,2])
+      expect(Boat.where(color:'blue').ids).to eq([1,2])
       boat2.update_attribute :color, 'green'
-      expect(Boat.where(color:'blue').to_ary).to eq([1])
+      expect(Boat.where(color:'blue').ids).to eq([1])
       boat1.update_attribute :color, 'green'
-      expect(Boat.where(color:'blue').to_ary).to eq([])
+      expect(Boat.where(color:'blue').ids).to eq([])
     end
   end
 
   describe "#attribute=" do
     it "should update search after a save" do
       boat1 = Boat.build id:1, color:'white'
-      expect(Boat.where(color:'white').to_ary).to eq([1])
-      expect(Boat.where(color:'black').to_ary).to eq([])
+      expect(Boat.where(color:'white').ids).to eq([1])
+      expect(Boat.where(color:'black').ids).to eq([])
       boat1.attributes = { color: 'black' }
-      expect(Boat.where(color:'white').to_ary).to eq([1])
-      expect(Boat.where(color:'black').to_ary).to eq([])
+      expect(Boat.where(color:'white').ids).to eq([1])
+      expect(Boat.where(color:'black').ids).to eq([])
       boat1.save
-      expect(Boat.where(color:'white').to_ary).to eq([])
-      expect(Boat.where(color:'black').to_ary).to eq([1])
+      expect(Boat.where(color:'white').ids).to eq([])
+      expect(Boat.where(color:'black').ids).to eq([1])
     end
   end
 
@@ -225,20 +223,20 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
       
-      ids = Boat.where(type:'yacht').order(sort: :color, order: :desc)
-      expect(ids.to_ary).to eq([2,3])
+      ids = Boat.where(type:'yacht').sort(:color).order(:asc).ids
+      expect(ids).to eq([3,2])
 
-      ids = Boat.where(type:'yacht').order(sort: :color, order: :asc)
-      expect(ids.to_ary).to eq([3,2])
+      ids = Boat.where(type:'yacht').sort(:color).order(:desc).ids
+      expect(ids).to eq([2,3])
 
-      ids = Boat.where(type:'ferry').order(sort: :color, order: :asc)
-      expect(ids.to_ary).to eq([1])
+      ids = Boat.where(type:'ferry').sort(:color).order(:asc).ids
+      expect(ids).to eq([1])
 
-      ids = Boat.where(color:'white').order(sort: :type, order: :asc)
-      expect(ids.to_ary).to eq([1,2])
+      ids = Boat.where(color:'white').sort(:type).order(:asc).ids
+      expect(ids).to eq([1,2])
 
-      ids = Boat.where(color:'white').order(sort: :type, order: :desc)
-      expect(ids.to_ary).to eq([2,1])
+      ids = Boat.where(color:'white').sort(:type).order(:desc).ids
+      expect(ids).to eq([2,1])
     end
   end
 
@@ -251,8 +249,44 @@ RSpec.describe Record do
       boat4 = Boat.build id:5, type:'yacht', color: 'white', owner:'Clara'
       boat4 = Boat.build id:6, type:'yacht', color: 'blue', owner:'Ben'
       
-      ids = Boat.where(color:'white', type:'yacht').order(sort: :owner, order: :asc)
-      expect(ids.to_ary).to eq([5,4])
+      ids = Boat.where(color:'white', type:'yacht').sort(:owner).order(:asc).ids
+      expect(ids).to eq([5,4])
+    end
+  end
+
+  describe "#first" do
+    it "should find the first item" do
+      record1 = Record.build id:1
+      record2 = Record.build id:2
+      record3 = Record.build id:3
+      item = Record.first.result
+      expect(item).to be_a(Record)
+      expect(item.id).to eq(record1.id)
+    end
+  end
+
+  describe "#last" do
+    it "should find the last item" do
+      record1 = Record.build id:1
+      record2 = Record.build id:2
+      record3 = Record.build id:3
+      item = Record.last.result
+      expect(item).to be_a(Record)
+      expect(item.id).to eq(record3.id)
+    end
+  end
+
+  describe "#random" do
+    # really testing for randomness is hard
+    # we simply check that a valid id is returned
+    it "should find a random item" do
+      record1 = Record.build id:1
+      record2 = Record.build id:2
+      record3 = Record.build id:25
+      ids = [record1.id, record2.id, record3.id]
+
+      item = Record.random.ids
+      expect(ids.include? item).to eq(true)
     end
   end
 

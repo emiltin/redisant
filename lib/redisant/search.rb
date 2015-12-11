@@ -29,6 +29,11 @@ class Search
     $redis.srem key(value), record.id.to_s
   end
   
+  
+  def self.search_key klass,k,v
+    "#{klass.name.downcase}:search:#{k}:#{v}"
+  end
+
   def self.where klass, attributes, store=nil
     keys = []
     attributes.each_pair do |k,v|
@@ -41,10 +46,16 @@ class Search
       got.map { |id| id.to_i } if got
     end
   end
+
+  def self.count klass, attributes
+    keys = []
+    attributes.each_pair do |k,v|
+      keys << "#{klass.name.downcase}:search:#{k}:#{v}"
+    end
+    lua = "return #redis.call('SINTER', unpack(KEYS));"
+    $redis.eval lua, keys
+  end
   
-  private
   
-  def item_value item
-    "#{item.attribute(@name)}:#{item.id}"
-  end 
+
 end

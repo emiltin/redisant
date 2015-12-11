@@ -47,5 +47,35 @@ class Index
   
   def item_value item
     "#{item.attribute(@name)}:#{item.id}"
-  end 
+  end
+
+
+  def self.order options
+    sort = options[:sort]
+    klass = options[:class]
+    key = options[:key] || "#{klass.name.downcase}:ids"
+    limit = [options[:offset] || 0, options[:limit]] if options[:limit]
+    order = options[:order].to_s || 'asc'
+    index = klass.find_index(sort)
+    if index
+      type = klass.find_index(sort).type
+    end
+    
+    if sort
+      by = "#{klass.name.downcase}:*:attributes->#{sort}"
+        by << ":float" if type == 'float'
+    else
+      by = 'nosort' unless options[:limit]==1
+    end
+    
+    if type == 'string'
+      order << ' alpha'
+    end
+    args = { limit: limit, by: by, order: order }
+    ids = $redis.sort key, args
+    if ids
+     ids.map! { |t| t.to_i } 
+   end
+  end
+
 end

@@ -24,7 +24,13 @@ class Record
   def class_name
     self.class.name.downcase
   end
-
+  
+  def self.load id
+    t = self.new id:id
+    t.load
+    t
+  end
+  
   # query
   def self.find id
     raise Redisant::InvalidArgument.new("Invalid argument") unless id
@@ -75,6 +81,10 @@ class Record
 
   def self.count
     Criteria.new(self).count
+  end
+
+  def self.sort options
+    Criteria.new(self).sort options
   end
 
   def self.order options
@@ -210,22 +220,8 @@ class Record
     end
   end
 
-  def self.ids options={}
-    sort = options.delete :sort
-    if sort
-      index = self.find_index sort.to_s
-      raise Redisant::InvalidArgument.new("Cannot order by #{sort}") unless index
-      index.ids options
-    else
-      options = {order: :asc}.merge options
-      if options[:order] == :asc
-        $redis.zrange( class_key('ids'), 0, -1 ).map { |id| id.to_i }
-      elsif options[:order] == :desc
-        $redis.zrevrange( class_key('ids'), 0, -1 ).map { |id| id.to_i }
-      else
-        raise Redisant::InvalidArgument.new("Invalid order")
-      end
-    end
+  def self.ids
+    Criteria.new(self).ids
   end
 
   def add_id

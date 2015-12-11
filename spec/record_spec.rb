@@ -205,49 +205,11 @@ RSpec.describe Record do
     end
   end
 
-  describe "#first" do
-    it "should find the first item" do
-      record1 = Record.build id:1
-      record2 = Record.build id:2
-      record3 = Record.build id:3
-      item = Record.first.result
-      expect(item).to be_a(Record)
-      expect(item.id).to eq(record1.id)
-    end
-  end
-
-  describe "#last" do
-    it "should find the last item" do
-      record1 = Record.build id:1
-      record2 = Record.build id:2
-      record3 = Record.build id:3
-      item = Record.last.result
-      expect(item).to be_a(Record)
-      expect(item.id).to eq(record3.id)
-    end
-  end
-
-  describe "#random" do
-    # really testing for randomness is hard
-    # we simply check that a valid id is returned
-    it "should find a random item" do
-      record1 = Record.build id:1
-      record2 = Record.build id:2
-      record3 = Record.build id:25
-      ids = [record1.id, record2.id, record3.id]
-      
-      item = Record.random.result
-      expect(item).to be_a(Record)
-      expect(ids.include? item.id).to eq(true)
-    end
-  end
-
   describe "#id" do
     it "should return all object ids" do
-      n = 3
-      n.times do |i|
-        item = Record.build
-      end
+      record1 = Record.build id:1
+      record2 = Record.build id:2
+      record3 = Record.build id:3
       ids = Record.ids
       expect(ids).to eq([1,2,3])
     end

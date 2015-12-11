@@ -21,22 +21,22 @@ RSpec.describe Record do
     end
 
     it "should be sortable by alphanumeric index ascending" do
-      ids = Book.ids sort: :name, order: :asc
+      ids = Book.sort(:name).order(:asc).ids
       expect(ids).to eq([1,3,2])
     end
 
     it "should be sortable by alphanumeric index descending" do
-      ids = Book.ids sort: :name, order: :desc
+      ids = Book.sort(:name).order(:desc).ids
       expect(ids).to eq([2,3,1])
     end
 
     it "should be sortable by time index time ascending" do
-      ids = Book.ids sort: :created_at, order: :asc
+      ids = Book.sort(:created_at).order(:asc).ids
       expect(ids).to eq([3,1,2])
     end
 
     it "should be sortable by time index time descending" do
-      ids = Book.ids sort: :created_at, order: :desc
+      ids = Book.sort(:created_at).order(:desc).ids
       expect(ids).to eq([2,1,3])
     end
   end
