@@ -72,22 +72,23 @@ class Query
   def use_where_single
     key = @criteria.get_conditions.keys.first
     value = @criteria.get_conditions.values.first
-    @set = Search.search_key @criteria.object_class, key, value
+    @set = Search.search_key @criteria.set, key, value
   end
 
   def use_ids
-    @set = @criteria.object_class.class_key('ids')
+    @set = @criteria.set #klass.class_key('ids')
+    #@set = @criteria.klass.class_key('ids')
   end
 
   def fetch_intersection
-    Search.where @criteria.object_class, @criteria.get_conditions
+    Search.where @criteria.klass, @criteria.get_conditions
   end
 
 
   def store_intersection
     # combine search sets to temporary set that we can sort later
     @set = "tmp:#{rand(36**16).to_s(36)}"
-    Search.where @criteria.object_class, @criteria.get_conditions, @set
+    Search.where @criteria.klass, @criteria.get_conditions, @set
     @del = true
   end
 
@@ -97,7 +98,7 @@ class Query
   end
 
   def count_intersection
-    Search.count @criteria.object_class, @criteria.get_conditions
+    Search.count @criteria.klass, @criteria.get_conditions
   end
 
   def count_set
@@ -107,7 +108,7 @@ class Query
   def fetch_with_sort
     want = [:sort,:offset,:limit,:order,:sort_type]
     args = @criteria.criteria.select { |k,v| want.include? k }
-    args.merge!( class: @criteria.object_class, key: @set )
+    args.merge!( class: @criteria.klass, key: @set )
     Index.order args
   end
 
@@ -125,7 +126,7 @@ class Query
   end
 
   def load_objects
-    @objects = @ids.map { |id| @criteria.object_class.load id }
+    @objects = @ids.map { |id| @criteria.class.load id }
   end
 
 end

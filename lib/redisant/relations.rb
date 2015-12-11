@@ -84,7 +84,8 @@ class HasMany < Relation
   end
   
   def count
-    @count ||= $redis.scard(redis_key)
+    Criteria.new(self).count
+    #@count ||= $redis.scard(redis_key)
   end
 
   def build options={}

@@ -1,9 +1,15 @@
 class Criteria
   undef_method '=='
   undef_method '!='
-
-  def initialize(klass)
-    @klass = klass
+  
+  attr_reader :klass, :set
+  
+  def initialize base
+    if base.is_a? Relation
+      @set = base.redis_key
+    else
+      @set = base.class_key('ids')
+    end
   end
 
   def criteria
@@ -106,10 +112,10 @@ class Criteria
     criteria[:random] == true
   end
   
-  def object_class
-    @klass
+  def get_set
+    @set
   end
-  
+
   def get_conditions
     criteria[:where]
   end

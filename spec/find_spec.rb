@@ -1,24 +1,28 @@
 require 'spec_helper'
 
 class Boat < Record
+  has_many :sails
   attribute :type, index: :string, search: true
   attribute :color, index: :string, search: true
   attribute :owner, index: :string, search: true
   attribute :size
 end
 
+class Sail < Record
+  belongs_to :boat
+  attribute :type, index: :string, search: true
+  attribute :color, index: :string, search: true
+end
+
 
 RSpec.describe Record do
-
-  before(:each) do
-  end
 
   describe "#where" do
     it "should find objects by single attribute" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       expect(Boat.where(type:'ferry').ids).to eq([1])
       expect(Boat.where(type:'yacht').ids).to eq([2,3])
       expect(Boat.where(type:'raft').ids).to eq([])
@@ -34,7 +38,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       expect(Boat.where(type:'yacht').ids).to eq([2,3])
 
       expect(Boat.where(color:'white').ids).to eq([1,2])
@@ -48,7 +52,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-            
+
       expect(Boat.where(type:'ferry').where(color:'white').ids).to eq([1])
       expect(Boat.where(type:'ferry').where(color:'blue').ids).to eq([])
       expect(Boat.where(type:'yacht').where(size:'small').ids).to eq([])
@@ -79,9 +83,9 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       expect(Boat.count.result).to eq(3)
-      
+
       # check compare methods:
       expect(Boat.count == 3).to eq(true)
       expect(Boat.count != 2).to eq(true)
@@ -97,7 +101,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       expect(Boat.where(type:'yacht').count.to_int).to eq(2)
       expect(Boat.count.where(type:'yacht').to_int).to eq(2)
       expect(Boat.where(color:'white').count.where(type:'yacht').to_int).to eq(1)
@@ -109,7 +113,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       boat = Boat.where(type:'yacht').random.ids
       expect([2,3]).to include(boat)
     end
@@ -120,7 +124,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       boat = Boat.where(type:'ferry').first.result
       expect(boat.id).to eq(1)
       boat = Boat.where(type:'ferry').last.result
@@ -130,7 +134,7 @@ RSpec.describe Record do
       expect(boat.id).to eq(2)
       boat = Boat.where(type:'yacht').last.result
       expect(boat.id).to eq(3)
-      
+
       boat = Boat.where(type:'yacht',color:'blue').first.result
       expect(boat.id).to eq(3)
       boat = Boat.where(type:'yacht',color:'blue').last.result
@@ -143,7 +147,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       boat = Boat.first(type:'ferry').result
       expect(boat.id).to eq(1)
       boat = Boat.last(type:'ferry').result
@@ -153,7 +157,7 @@ RSpec.describe Record do
       expect(boat.id).to eq(2)
       boat = Boat.last(type:'yacht').result
       expect(boat.id).to eq(3)
-      
+
       boat = Boat.first(type:'yacht',color:'blue').result
       expect(boat.id).to eq(3)
       boat = Boat.last(type:'yacht',color:'blue').result
@@ -181,7 +185,7 @@ RSpec.describe Record do
 
       expect(Boat.where(color:'white').ids).to eq([1,2])
       expect(Boat.where(color:'blue').ids).to eq([])
-      
+
       boat1.update_attributes color:'blue'
 
       expect(Boat.where(color:'white').ids).to eq([2])
@@ -222,7 +226,7 @@ RSpec.describe Record do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
-      
+
       ids = Boat.where(type:'yacht').sort(:color).order(:asc).ids
       expect(ids).to eq([3,2])
 
@@ -248,7 +252,7 @@ RSpec.describe Record do
       boat4 = Boat.build id:4, type:'yacht', color: 'white', owner:'Sarah'
       boat4 = Boat.build id:5, type:'yacht', color: 'white', owner:'Clara'
       boat4 = Boat.build id:6, type:'yacht', color: 'blue', owner:'Ben'
-      
+
       ids = Boat.where(color:'white', type:'yacht').sort(:owner).order(:asc).ids
       expect(ids).to eq([5,4])
     end
@@ -287,6 +291,33 @@ RSpec.describe Record do
 
       item = Record.random.ids
       expect(ids.include? item).to eq(true)
+    end
+  end
+
+  describe "queries on relations" do
+    before(:each) do
+      @boat1 = Boat.build id:1, type: 'yacht', color: 'white'
+      @sail1 = Sail.build id:1, type: 'small', color: 'white'
+      @sail2 = Sail.build id:2, type: 'big',   color: 'blue'
+      @sail3 = Sail.build id:3, type: 'big',   color: 'white'
+      @boat1.sails.add @sail1
+      @boat1.sails.add @sail2
+      @boat1.sails.add @sail3
+      
+      @boat2 = Boat.build id:2, type: 'ferry', color: 'blue'
+      @sail4 = Sail.build id:4, type: 'small', color: 'red'
+      @sail5 = Sail.build id:5, type: 'big',   color: 'red'
+      @sail6 = Sail.build id:6, type: 'small', color: 'white'
+      @boat2.sails.add @sail4
+      @boat2.sails.add @sail5
+      @boat2.sails.add @sail6
+    end
+
+    describe "#count on a relation" do
+      it "should return number of relations" do
+        expect(@boat1.sails.count.result).to eq(3)
+        expect(@boat2.sails.count).to eq(3)
+      end
     end
   end
 
