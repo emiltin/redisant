@@ -49,7 +49,7 @@ class Record
   end
 
   def self.exists? id
-    $redis.zscore( class_key('ids'), id ) != nil
+    $redis.sismember( class_key('ids'), id )
   end
 
   def self.all options={}
@@ -227,13 +227,13 @@ class Record
   def add_id
     raise Redisant::InvalidArgument.new('Cannot add empty id') unless @id
     return if @id_saved
-    $redis.zadd self.class.class_key('ids'), @id.to_i, @id
+    $redis.sadd self.class.class_key('ids'), @id.to_i
     @id_saved = true
   end
 
   def remove_id
     raise Redisant::InvalidArgument.new('Cannot remove empty id') unless @id
-    $redis.zrem self.class.class_key('ids'), @id
+    $redis.srem self.class.class_key('ids'), @id
     @id = nil
     @id_saved = false
   end

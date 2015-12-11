@@ -113,12 +113,11 @@ class Query
 
 
   def count_ids
-    @result = $redis.zcount @criteria.object_class.class_key('ids'), '-inf', '+inf'
+    @result = $redis.scard @criteria.object_class.class_key('ids')
   end
 
   def random_ids
-    i = rand count_ids
-    $redis.zrange( @criteria.object_class.class_key('ids'), i, i ).first.to_i
+    $redis.srandmember(@set).to_i
   end
 
   def random_set
