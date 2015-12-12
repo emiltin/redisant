@@ -2,14 +2,22 @@ class Criteria
   undef_method '=='
   undef_method '!='
   
-  attr_reader :klass, :set
+  attr_reader :object_class, :ids_key
   
   def initialize base
     if base.is_a? Relation
-      @set = base.redis_key
+      @ids_key = base.redis_key
+      @object_class = base.object_class
+      criteria[:relation] = base
     else
-      @set = base.class_key('ids')
+      @ids_key = base.id_key
+      @object_class = base
     end
+  end
+
+  def relation relation
+    criteria[:relation] = relation
+    self
   end
 
   def criteria
@@ -77,17 +85,15 @@ class Criteria
   end
   
   def where_single?
-    criteria[:where].size == 1
+    num_conditions == 1
   end
 
   def where_multi?
-    criteria[:where].size > 1
+    num_conditions >= 1
   end
 
   def single?
     criteria[:limit] == 1 ||
-    criteria[:first] ||
-    criteria[:last] ||
     criteria[:random] ||
     criteria[:count]
   end
@@ -112,12 +118,20 @@ class Criteria
     criteria[:random] == true
   end
   
-  def get_set
-    @set
+  def num_conditions
+    n = criteria[:where].keys.size
+    if criteria[:relation]
+      n += 1
+    end
+    n
   end
-
+  
   def get_conditions
     criteria[:where]
+  end
+
+  def get_relation
+    criteria[:relation]
   end
   
   def get_order

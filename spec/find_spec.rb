@@ -53,7 +53,7 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      expect(Boat.where(type:'ferry').where(color:'white').ids).to eq([1])
+      expect(Boat.where(type:'ferry').where(color:'white').ids.result).to eq([1])
       expect(Boat.where(type:'ferry').where(color:'blue').ids).to eq([])
       expect(Boat.where(type:'yacht').where(size:'small').ids).to eq([])
     end
@@ -303,7 +303,7 @@ RSpec.describe Record do
       @boat1.sails.add @sail1
       @boat1.sails.add @sail2
       @boat1.sails.add @sail3
-      
+            
       @boat2 = Boat.build id:2, type: 'ferry', color: 'blue'
       @sail4 = Sail.build id:4, type: 'small', color: 'red'
       @sail5 = Sail.build id:5, type: 'big',   color: 'red'
@@ -316,7 +316,35 @@ RSpec.describe Record do
     describe "#count on a relation" do
       it "should return number of relations" do
         expect(@boat1.sails.count.result).to eq(3)
-        expect(@boat2.sails.count).to eq(3)
+        expect(@boat2.sails.count.result).to eq(3)
+      end
+    end
+
+    describe "#ids on a relation" do
+      it "should return object ids" do
+        expect(@boat1.sails.ids.result).to eq([1,2,3])
+        expect(@boat2.sails.ids.result).to eq([4,5,6])
+      end
+    end
+
+    describe "#where and #ids on a relation" do
+      it "should return correct ids" do
+        expect(@boat1.sails.where(type:'big').ids.result).to eq([2,3])
+        expect(@boat2.sails.where(type:'big').ids.result).to eq([5])
+      end
+    end
+
+    describe "#where on a relation" do
+      it "should return correct objects" do
+        expect(@boat1.sails.where(type:'big').count).to eq(2)
+        expect(@boat2.sails.where(type:'big').count).to eq(1)
+      end
+    end
+
+    describe "#where and #count on a relation" do
+      it "should return correct number" do
+        expect([2,3]).to include(@boat1.sails.where(type:'big').random)
+        expect([5]).to include(@boat2.sails.where(type:'big').random)
       end
     end
   end

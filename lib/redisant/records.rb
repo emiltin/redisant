@@ -49,7 +49,7 @@ class Record
   end
 
   def self.exists? id
-    $redis.sismember( class_key('ids'), id )
+    $redis.sismember( id_key, id )
   end
 
   def self.all options={}
@@ -133,7 +133,7 @@ class Record
     attribute_keys = ids.map {|id| "#{self.name.downcase}:#{id}:attributes" }
     $redis.multi do |multi|
       multi.del( attribute_keys )
-      multi.del class_key('ids') 
+      multi.del id_key 
       multi.del class_key('ids:counter')
     end
   end
@@ -207,6 +207,10 @@ class Record
   end
 
   # ids
+  def self.id_key
+    class_key 'id'
+  end
+
   def make_unique_id
     return if @id
     #use optimistic concurrency control:
@@ -227,13 +231,13 @@ class Record
   def add_id
     raise Redisant::InvalidArgument.new('Cannot add empty id') unless @id
     return if @id_saved
-    $redis.sadd self.class.class_key('ids'), @id.to_i
+    $redis.sadd self.class.id_key, @id.to_i
     @id_saved = true
   end
 
   def remove_id
     raise Redisant::InvalidArgument.new('Cannot remove empty id') unless @id
-    $redis.srem self.class.class_key('ids'), @id
+    $redis.srem self.class.id_key, @id
     @id = nil
     @id_saved = false
   end

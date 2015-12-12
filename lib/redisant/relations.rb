@@ -6,6 +6,10 @@ class Relation
     @object = object
     @class = Inflector.constantize Inflector.singularize(name)
   end
+  
+  def object_class
+    @class
+  end
 end
 
 class BelongsTo < Relation
@@ -80,12 +84,15 @@ class HasMany < Relation
 
   # query
   def ids
-    @ids ||= $redis.smembers(redis_key).map { |id| id.to_i }
+    Criteria.new(self).ids
   end
   
   def count
     Criteria.new(self).count
-    #@count ||= $redis.scard(redis_key)
+  end
+
+  def where attributes
+    Criteria.new(self).where(attributes)
   end
 
   def build options={}
