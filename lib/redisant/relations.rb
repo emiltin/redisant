@@ -95,12 +95,20 @@ class HasMany < Relation
     Criteria.new(self).where(attributes)
   end
 
-  def first
-    Criteria.new(self).first
+  def first attributes={}
+    Criteria.new(self).first attributes
   end
 
-  def last
-    Criteria.new(self).last
+  def last attributes={}
+    Criteria.new(self).last attributes
+  end
+
+  def sort options
+    Criteria.new(self).sort options
+  end
+
+  def order options
+    Criteria.new(self).order options
   end
 
   def random

@@ -66,6 +66,8 @@ class Criteria
   end
 
   def order options
+    raise Redisant::InvalidArgument.new('Invalid order') unless ['asc','desc'].include? options.to_s
+    
     criteria[:order] = options
     self
   end

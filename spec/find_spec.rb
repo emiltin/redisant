@@ -369,9 +369,25 @@ RSpec.describe Record do
 
         expect(@boat2.sails.where(color:'white').first.ids).to eq(6)
         expect(@boat2.sails.where(color:'white').last.ids).to eq(6)
+
+        expect(@boat1.sails.first(color:'white').ids).to eq(1)
+        expect(@boat1.sails.last(color:'white').ids).to eq(3)
+
+        expect(@boat2.sails.first(color:'white').ids).to eq(6)
+        expect(@boat2.sails.last(color:'white').ids).to eq(6)
       end
     end
 
+    describe "#sort and #order on a relation" do
+      it "should return last object" do
+        expect(@boat1.sails.sort(:color).ids.result).to eq([2,1,3])
+        expect(@boat1.sails.sort(:type).ids.result).to eq([2,3,1])
+        
+        expect(@boat1.sails.sort(:color).order(:desc).ids.result).to eq([1,3,2])
+        expect(@boat1.sails.sort(:type).order(:desc).ids.result).to eq([1,2,3])
+      end
+    end
+    
     describe "#random on a relation" do
       it "should return random object" do
         expect([1,2,3]).to include(@boat1.sails.random.ids)
