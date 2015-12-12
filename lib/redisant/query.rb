@@ -9,11 +9,18 @@ class Query
     
     collect_keys
     if @criteria.count?
-      count
+      return count
     elsif @criteria.random?
       random
     else
       fetch
+    end
+
+    if @criteria.ids?
+      flatten_single_items @ids
+    else
+      load_objects
+      flatten_single_items @objects
     end
   ensure
     delete_tmp
@@ -46,9 +53,9 @@ class Query
 
   def random
     if @sub_keys.size > 1
-      random_intersection
+      @ids = [random_intersection]
     else
-      random_ids
+      @ids = [random_ids]
     end
   end
 
@@ -63,13 +70,6 @@ class Query
     else
       @final_key = @sub_keys.first
       @ids = sort_and_limit
-    end
-    
-    if @criteria.ids?
-      flatten_single_items @ids
-    else
-      load_objects
-      flatten_single_items @objects
     end
   end
 

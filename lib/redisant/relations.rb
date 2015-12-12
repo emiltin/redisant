@@ -95,6 +95,18 @@ class HasMany < Relation
     Criteria.new(self).where(attributes)
   end
 
+  def first
+    Criteria.new(self).first
+  end
+
+  def last
+    Criteria.new(self).last
+  end
+
+  def random
+    Criteria.new(self).random
+  end
+
   def build options={}
     item = @class.new options
     item.save

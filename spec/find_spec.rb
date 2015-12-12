@@ -343,10 +343,41 @@ RSpec.describe Record do
 
     describe "#where and #count on a relation" do
       it "should return correct number" do
-        expect([2,3]).to include(@boat1.sails.where(type:'big').random)
-        expect([5]).to include(@boat2.sails.where(type:'big').random)
+        expect([2,3]).to include(@boat1.sails.where(type:'big').random.ids)
+        expect([5]).to include(@boat2.sails.where(type:'big').random.ids)
       end
     end
+
+    describe "#first on a relation" do
+      it "should return first object" do
+        expect(@boat1.sails.first.ids.result).to eq(1)
+        expect(@boat2.sails.first.ids.result).to eq(4)
+      end
+    end
+
+    describe "#last on a relation" do
+      it "should return last object" do
+        expect(@boat1.sails.last.ids.result).to eq(3)
+        expect(@boat2.sails.last.ids.result).to eq(6)
+      end
+    end
+    
+    describe "#where and #first/#last on a relation" do
+      it "should return first/last object" do
+        expect(@boat1.sails.where(color:'white').first.ids).to eq(1)
+        expect(@boat1.sails.where(color:'white').last.ids).to eq(3)
+
+        expect(@boat2.sails.where(color:'white').first.ids).to eq(6)
+        expect(@boat2.sails.where(color:'white').last.ids).to eq(6)
+      end
+    end
+
+    describe "#random on a relation" do
+      it "should return random object" do
+        expect([1,2,3]).to include(@boat1.sails.random.ids)
+      end
+    end
+
   end
 
 end
