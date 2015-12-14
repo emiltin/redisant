@@ -16,7 +16,7 @@ class Record
     @id = attributes.delete(:id) if attributes
     @attributes = stringify_attributes(attributes) || {}
     @prev_attributes = {}
-    @changed_attributes = @attributes
+    @dirty = @attributes.keys
     setup_relations if respond_to? :setup_relations
     @id_saved = false
   end
@@ -90,12 +90,20 @@ class Record
   def self.order options
     Criteria.new(self).order options
   end
-  
+
   # dirty
   def dirty?
-    @changed_attributes.any?
+    @dirty.any?
   end
-  
+
+  def dirty keys
+    @dirty = @dirty | [keys].flatten
+  end
+
+  def clean
+    @dirty = []
+  end
+
   # crud
   def self.build attributes=nil
     object = self.new attributes
@@ -151,7 +159,7 @@ class Record
 
   def set_attribute key, value
     @attributes[key.to_s] = value
-    @changed_attributes[key.to_s] = value
+    dirty [key]
   end
   
   def update_attribute key, value
@@ -164,7 +172,7 @@ class Record
   def attributes= attributes
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     @attributes = stringify_attributes attributes
-    @changed_attributes = @attributes
+    dirty attributes.keys
   end
   
   def load_attributes
@@ -174,11 +182,10 @@ class Record
   end
 
   def save_attributes
-    if @changed_attributes.any?
-      synthesize_attributes @changed_attributes
+    if dirty?
+      synthesize_attributes
       $redis.hmset member_key('attributes'), encode_attributes
-      @changed_attributes = {}
-      @dirty = false
+      clean
     end
     update_search
   end
@@ -186,14 +193,13 @@ class Record
   def update_attributes attributes
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     @attributes.merge! stringify_attributes(attributes)
-    @changed_attributes = attributes
+    dirty attributes.keys
     save_attributes
   end
 
   def destroy_attributes
     $redis.del member_key('attributes')
     @attributes = nil
-    @dirty = false
     update_search
   end
 
@@ -245,26 +251,28 @@ class Record
   
   # redis can only sort by string or float
   # to sort by eg. Time we store float version of required attributes
-  def synthesize_attributes attributes
-    keys = attributes.keys
+  def synthesize_attributes
     synthesized = {}
     self.class.indexes.each_pair do |name,index|
-      if keys.include? name
+      if @dirty.include? name
         if index.type=='float'
-           # for Time objects to_f return number of seconds since epoch
+          # for Time objects to_f return number of seconds since epoch
           key = "#{name}:float"
           value = @attributes[name].to_f
           @attributes[key] = value
-          @changed_attributes[key] = value
+          dirty key
         end
       end
     end
   end
  
   def encode_attributes
-    @changed_attributes.collect do |k,v|
-      [k.to_s,v.to_json]
-    end.flatten
+    encoded = {}
+    @dirty.each do |key|
+      k = key.to_s
+      encoded[k] = @attributes[k].to_json
+    end
+    encoded.flatten
   end
 
   def decode_attributes attributes
@@ -301,7 +309,6 @@ class Record
     else
       @prev_attributes = nil
     end
-    @changed_attributes = {}
   end
 
   # search

@@ -193,11 +193,28 @@ RSpec.describe Record do
     it "should update specific attributes" do
       item = Record.build color:'purple', mood:'wonder' 
       item.update_attributes(mood:'surprise')
-      
+
       item = Record.first
       expect(item.attributes).to eq({'color'=>'purple','mood'=>'surprise'})
     end
+
+    it "should work with hashes" do
+      item = Record.build 'size'=>8, 'fruits'=>{'banana'=>'yellow','apple'=>'green'}
+      item.update_attributes('size'=>5)
+
+      item = Record.first
+      expect(item.attributes).to eq({'size'=>5, 'fruits'=>{'banana'=>'yellow','apple'=>'green'}})
+    end
+
+    it "should work with arrays" do
+      item = Record.build 'size'=>3, 'fruits'=>['banana','apple','melons']
+      item.update_attributes('fruits'=>['pears','cherries'])
+
+      item = Record.first
+      expect(item.attributes).to eq({'size'=>3, 'fruits'=>['pears','cherries']})
+    end
   end
+
   
   describe "#find" do
     it "should find the correct item" do
