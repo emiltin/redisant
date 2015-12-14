@@ -84,7 +84,7 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      expect(Boat.count.result).to eq(3)
+      expect(Boat.count).to eq(3)
 
       # check compare methods:
       expect(Boat.count == 3).to eq(true)
@@ -102,9 +102,9 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      expect(Boat.where(type:'yacht').count.to_int).to eq(2)
-      expect(Boat.count.where(type:'yacht').to_int).to eq(2)
-      expect(Boat.where(color:'white').count.where(type:'yacht').to_int).to eq(1)
+      expect(Boat.where(type:'yacht').count).to eq(2)
+      expect(Boat.where(type:'yacht').count).to eq(2)
+      expect(Boat.where(color:'white').where(type:'yacht').count).to eq(1)
     end
   end
 
@@ -114,7 +114,7 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      boat = Boat.where(type:'yacht').random.ids
+      boat = Boat.where(type:'yacht').ids.random
       expect([2,3]).to include(boat)
     end
   end
@@ -125,19 +125,19 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      boat = Boat.where(type:'ferry').first.result
+      boat = Boat.where(type:'ferry').first
       expect(boat.id).to eq(1)
-      boat = Boat.where(type:'ferry').last.result
+      boat = Boat.where(type:'ferry').last
       expect(boat.id).to eq(1)
 
-      boat = Boat.where(type:'yacht').first.result
+      boat = Boat.where(type:'yacht').first
       expect(boat.id).to eq(2)
-      boat = Boat.where(type:'yacht').last.result
+      boat = Boat.where(type:'yacht').last
       expect(boat.id).to eq(3)
 
-      boat = Boat.where(type:'yacht',color:'blue').first.result
+      boat = Boat.where(type:'yacht',color:'blue').first
       expect(boat.id).to eq(3)
-      boat = Boat.where(type:'yacht',color:'blue').last.result
+      boat = Boat.where(type:'yacht',color:'blue').last
       expect(boat.id).to eq(3)
     end
   end
@@ -148,19 +148,19 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      boat = Boat.first(type:'ferry').result
+      boat = Boat.first(type:'ferry')
       expect(boat.id).to eq(1)
-      boat = Boat.last(type:'ferry').result
+      boat = Boat.last(type:'ferry')
       expect(boat.id).to eq(1)
 
-      boat = Boat.first(type:'yacht').result
+      boat = Boat.first(type:'yacht')
       expect(boat.id).to eq(2)
-      boat = Boat.last(type:'yacht').result
+      boat = Boat.last(type:'yacht')
       expect(boat.id).to eq(3)
 
-      boat = Boat.first(type:'yacht',color:'blue').result
+      boat = Boat.first(type:'yacht',color:'blue')
       expect(boat.id).to eq(3)
-      boat = Boat.last(type:'yacht',color:'blue').result
+      boat = Boat.last(type:'yacht',color:'blue')
       expect(boat.id).to eq(3)
     end
   end
@@ -263,7 +263,7 @@ RSpec.describe Record do
       record1 = Record.build id:1
       record2 = Record.build id:2
       record3 = Record.build id:3
-      item = Record.first.result
+      item = Record.first
       expect(item).to be_a(Record)
       expect(item.id).to eq(record1.id)
     end
@@ -274,7 +274,7 @@ RSpec.describe Record do
       record1 = Record.build id:1
       record2 = Record.build id:2
       record3 = Record.build id:3
-      item = Record.last.result
+      item = Record.last
       expect(item).to be_a(Record)
       expect(item.id).to eq(record3.id)
     end
@@ -289,7 +289,7 @@ RSpec.describe Record do
       record3 = Record.build id:25
       ids = [record1.id, record2.id, record3.id]
 
-      item = Record.random.ids
+      item = Record.ids.random
       expect(ids.include? item).to eq(true)
     end
   end
@@ -315,8 +315,8 @@ RSpec.describe Record do
 
     describe "#count on a relation" do
       it "should return number of relations" do
-        expect(@boat1.sails.count.result).to eq(3)
-        expect(@boat2.sails.count.result).to eq(3)
+        expect(@boat1.sails.count).to eq(3)
+        expect(@boat2.sails.count).to eq(3)
       end
     end
 
@@ -343,38 +343,38 @@ RSpec.describe Record do
 
     describe "#where and #count on a relation" do
       it "should return correct number" do
-        expect([2,3]).to include(@boat1.sails.where(type:'big').random.ids)
-        expect([5]).to include(@boat2.sails.where(type:'big').random.ids)
+        expect([2,3]).to include(@boat1.sails.where(type:'big').ids.random)
+        expect([5]).to include(@boat2.sails.where(type:'big').ids.random)
       end
     end
 
     describe "#first on a relation" do
       it "should return first object" do
-        expect(@boat1.sails.first.ids.result).to eq(1)
-        expect(@boat2.sails.first.ids.result).to eq(4)
+        expect(@boat1.sails.ids.first).to eq(1)
+        expect(@boat2.sails.ids.first).to eq(4)
       end
     end
 
     describe "#last on a relation" do
       it "should return last object" do
-        expect(@boat1.sails.last.ids.result).to eq(3)
-        expect(@boat2.sails.last.ids.result).to eq(6)
+        expect(@boat1.sails.ids.last).to eq(3)
+        expect(@boat2.sails.ids.last).to eq(6)
       end
     end
     
     describe "#where and #first/#last on a relation" do
       it "should return first/last object" do
-        expect(@boat1.sails.where(color:'white').first.ids).to eq(1)
-        expect(@boat1.sails.where(color:'white').last.ids).to eq(3)
+        expect(@boat1.sails.where(color:'white').ids.first).to eq(1)
+        expect(@boat1.sails.where(color:'white').ids.last).to eq(3)
 
-        expect(@boat2.sails.where(color:'white').first.ids).to eq(6)
-        expect(@boat2.sails.where(color:'white').last.ids).to eq(6)
+        expect(@boat2.sails.where(color:'white').ids.first).to eq(6)
+        expect(@boat2.sails.where(color:'white').ids.last).to eq(6)
 
-        expect(@boat1.sails.first(color:'white').ids).to eq(1)
-        expect(@boat1.sails.last(color:'white').ids).to eq(3)
+        expect(@boat1.sails.ids.first(color:'white')).to eq(1)
+        expect(@boat1.sails.ids.last(color:'white')).to eq(3)
 
-        expect(@boat2.sails.first(color:'white').ids).to eq(6)
-        expect(@boat2.sails.last(color:'white').ids).to eq(6)
+        expect(@boat2.sails.ids.first(color:'white')).to eq(6)
+        expect(@boat2.sails.ids.last(color:'white')).to eq(6)
       end
     end
 
@@ -390,7 +390,7 @@ RSpec.describe Record do
     
     describe "#random on a relation" do
       it "should return random object" do
-        expect([1,2,3]).to include(@boat1.sails.random.ids)
+        expect([1,2,3]).to include(@boat1.sails.ids.random)
       end
     end
 

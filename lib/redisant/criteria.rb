@@ -36,12 +36,12 @@ class Criteria
 
   def count
     criteria[:count] = true
-    self
+    result
   end
 
   def random
     criteria[:random] = true
-    self
+    result
   end
 
   def first attributes={}
@@ -49,7 +49,7 @@ class Criteria
     criteria[:offset] = 0
     criteria[:limit] = 1
     criteria[:order] = :asc
-    self
+    result
   end
 
   def last attributes={}
@@ -57,7 +57,7 @@ class Criteria
     criteria[:offset] = 0
     criteria[:limit] = 1
     criteria[:order] = :desc
-    self
+    result
   end
 
   def sort options
