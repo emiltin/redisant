@@ -18,7 +18,6 @@ class Record
     @prev_attributes = {}
     @changed_attributes = @attributes
     setup_relations if respond_to? :setup_relations
-    @dirty = attributes != nil
     @id_saved = false
   end
 
@@ -94,11 +93,7 @@ class Record
   
   # dirty
   def dirty?
-    @dirty
-  end
-  
-  def dirty
-    @dirty = true
+    @changed_attributes.any?
   end
   
   # crud
@@ -157,7 +152,6 @@ class Record
   def set_attribute key, value
     @attributes[key.to_s] = value
     @changed_attributes[key.to_s] = value
-    @dirty = true
   end
   
   def update_attribute key, value
@@ -171,13 +165,11 @@ class Record
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     @attributes = stringify_attributes attributes
     @changed_attributes = @attributes
-    @dirty = true
   end
   
   def load_attributes
     decoded = decode_attributes($redis.hgetall(member_key('attributes')))
     @attributes = restore_attribute_types decoded
-    @dirty = false
     keep_attributes
   end
 
@@ -306,11 +298,10 @@ class Record
   def keep_attributes
     if @attributes
       @prev_attributes = @attributes.dup
-      @changed_attributes = {}
     else
       @prev_attributes = nil
-      @changed_attributes = {}
     end
+    @changed_attributes = {}
   end
 
   # search
