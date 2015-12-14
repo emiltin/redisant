@@ -172,9 +172,7 @@ RSpec.describe Record do
         expect(item.attributes[key]).to eq(attributes[key])
       end
     end
-  end
-  
-  describe "#attributes" do
+
     it "should save/load data to the db as strings" do
       attributes = { 
         'string' => 'Anna', 
@@ -188,6 +186,16 @@ RSpec.describe Record do
       attributes.keys do |key|
         expect(loaded.attributes[key]).to eq(attributes[key])
       end
+    end
+  end
+  
+  describe "#update_attributes" do
+    it "should update specific attributes" do
+      item = Record.build color:'purple', mood:'wonder' 
+      item.update_attributes(mood:'surprise')
+      
+      item = Record.first
+      expect(item.attributes).to eq({'color'=>'purple','mood'=>'surprise'})
     end
   end
   

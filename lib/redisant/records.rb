@@ -16,6 +16,7 @@ class Record
     @id = attributes.delete(:id) if attributes
     @attributes = stringify_attributes(attributes) || {}
     @prev_attributes = {}
+    @changed_attributes = @attributes
     setup_relations if respond_to? :setup_relations
     @dirty = attributes != nil
     @id_saved = false
@@ -155,11 +156,12 @@ class Record
 
   def set_attribute key, value
     @attributes[key.to_s] = value
+    @changed_attributes[key.to_s] = value
     @dirty = true
   end
   
   def update_attribute key, value
-    set_attribute key, value
+    @attributes[key.to_s] = value
     $redis.hset member_key('attributes'), key, value
     update_search
   end
@@ -168,6 +170,7 @@ class Record
   def attributes= attributes
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     @attributes = stringify_attributes attributes
+    @changed_attributes = @attributes
     @dirty = true
   end
   
@@ -179,16 +182,19 @@ class Record
   end
 
   def save_attributes
-    if @attributes.any? && dirty?
-      synthesize_attributes
+    if @changed_attributes.any?
+      synthesize_attributes @changed_attributes
       $redis.hmset member_key('attributes'), encode_attributes
+      @changed_attributes = {}
       @dirty = false
     end
     update_search
   end
   
   def update_attributes attributes
-    @attributes = stringify_attributes attributes
+    raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
+    @attributes.merge! stringify_attributes(attributes)
+    @changed_attributes = attributes
     save_attributes
   end
 
@@ -244,21 +250,27 @@ class Record
 
   
   private
-
+  
   # redis can only sort by string or float
   # to sort by eg. Time we store float version of required attributes
-  def synthesize_attributes
+  def synthesize_attributes attributes
+    keys = attributes.keys
     synthesized = {}
     self.class.indexes.each_pair do |name,index|
-      if index.type=='float'
-         # for Time objects to_f return number of seconds since epoch
-        @attributes["#{name}:float"] = @attributes[name].to_f
+      if keys.include? name
+        if index.type=='float'
+           # for Time objects to_f return number of seconds since epoch
+          key = "#{name}:float"
+          value = @attributes[name].to_f
+          @attributes[key] = value
+          @changed_attributes[key] = value
+        end
       end
     end
   end
  
   def encode_attributes
-    @attributes.collect do |k,v|
+    @changed_attributes.collect do |k,v|
       [k.to_s,v.to_json]
     end.flatten
   end
@@ -294,8 +306,10 @@ class Record
   def keep_attributes
     if @attributes
       @prev_attributes = @attributes.dup
+      @changed_attributes = {}
     else
       @prev_attributes = nil
+      @changed_attributes = {}
     end
   end
 
