@@ -34,6 +34,13 @@ RSpec.describe Record do
       expect(record.attribute(:alarm_at)).to be_a(Time)
       expect(record.attribute(:alarm_at)).to eq(Time.new(2015,12,7,12,34,57))
     end
+
+    it "should store and retreive hashes" do
+      record = Record.build
+      record.update_attributes prices: {'hat'=>10, 'shoes'=>30}
+      record = Record.first
+      expect(record.attribute(:prices)).to eq({'hat'=>10, 'shoes'=>30})
+    end
   end
 
   describe "#dirty?" do

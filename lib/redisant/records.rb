@@ -158,21 +158,29 @@ class Record
   end
 
   def set_attribute key, value
-    @attributes[key.to_s] = value
-    dirty [key]
+    if value != @attributes[key.to_s]
+      @attributes[key.to_s] = value
+      dirty [key]
+    end
   end
   
   def update_attribute key, value
-    @attributes[key.to_s] = value
-    $redis.hset member_key('attributes'), key, value
-    update_search
+    if value != @attributes[key.to_s]
+      @attributes[key.to_s] = value
+      $redis.hset member_key('attributes'), key, value
+      update_search
+    end
   end
 
   # all attributes
   def attributes= attributes
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
-    @attributes = stringify_attributes attributes
-    dirty attributes.keys
+    attributes.each_pair do |key,value|
+      if value != @attributes[key.to_s]
+        @attributes[key.to_s] = value
+        dirty key
+      end
+    end
   end
   
   def load_attributes
