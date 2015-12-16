@@ -10,6 +10,7 @@ class Record
   
   attr_reader :id
   attr_reader :attributes
+  attr_reader :dirty
 
   def initialize attributes=nil
     raise Redisant::InvalidArgument.new('Wrong arguments') unless attributes==nil or attributes.is_a? Hash
@@ -134,12 +135,10 @@ class Record
   end
 
   def self.destroy_all
-    attribute_keys = ids.map {|id| "#{self.name.downcase}:#{id}:attributes" }
-    $redis.multi do |multi|
-      multi.del( attribute_keys )
-      multi.del id_key 
-      multi.del class_key('ids:counter')
-    end
+    keys = ids.map {|id| "#{self.name.downcase}:#{id}:attributes" }
+    keys << id_key
+    keys << class_key('ids:counter')
+    $redis.del keys if keys.any?
   end
   
   # keys
