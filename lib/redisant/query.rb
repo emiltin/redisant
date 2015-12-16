@@ -74,7 +74,7 @@ class Query
   end
 
   def flatten_single_items a
-    if @criteria.single? && a.size == 1
+    if @criteria.single?
       a.first
     else
       a

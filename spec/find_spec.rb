@@ -143,7 +143,8 @@ RSpec.describe Record do
   end
 
   describe "#first/last" do
-    it "should accept attributes" do
+
+    it "should accept single attribute" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
@@ -157,11 +158,28 @@ RSpec.describe Record do
       expect(boat.id).to eq(2)
       boat = Boat.last(type:'yacht')
       expect(boat.id).to eq(3)
+    end
+
+    it "should accept multiple attribute" do
+      boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
+      boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
+      boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
       boat = Boat.first(type:'yacht',color:'blue')
       expect(boat.id).to eq(3)
       boat = Boat.last(type:'yacht',color:'blue')
       expect(boat.id).to eq(3)
+    end
+  
+    it "should return nil if not found" do
+      boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
+      boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
+      boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
+
+      boat = Boat.first(type:'raceboat')
+      expect(boat).to eq(nil)
+      boat = Boat.last(type:'raceboat')
+      expect(boat).to eq(nil)
     end
   end
 
