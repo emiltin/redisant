@@ -64,6 +64,10 @@ class Record
     end
   end
 
+  def self.any?
+    $redis.scard( id_key ) > 0
+  end
+
   def self.first attributes={}
     Criteria.new(self).first attributes
   end

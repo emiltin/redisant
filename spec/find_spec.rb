@@ -31,9 +31,7 @@ RSpec.describe Record do
       expect(Boat.where(color:'blue').ids).to eq([3])
       expect(Boat.where(color:'red').ids).to eq([])
     end
-  end
 
-  describe "#where" do
     it "should return on array-like object" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
@@ -45,9 +43,7 @@ RSpec.describe Record do
 
       expect(Boat.where(type:'yacht').ids.size).to eq(2)
     end
-  end
 
-  describe "#where" do
     it "should be chainable" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
@@ -57,9 +53,7 @@ RSpec.describe Record do
       expect(Boat.where(type:'ferry').where(color:'blue').ids).to eq([])
       expect(Boat.where(type:'yacht').where(size:'small').ids).to eq([])
     end
-  end
 
-  describe "#where" do
     it "should find objects by multiple attributes" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
@@ -70,11 +64,24 @@ RSpec.describe Record do
       expect(Boat.where(type:'yacht', color:'white').ids).to eq([2])
       expect(Boat.where(type:'yacht', color:'blue').ids).to eq([3])
     end
-  end
 
-  describe "#where" do
     it "should not find anything for attributes without search" do
       expect(Boat.where(size:'big').ids).to eq([])
+    end
+  end
+
+  describe "#where and #any?" do
+    it "should return true if any objects" do
+      boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
+      boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
+      boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
+
+      expect(Boat.where(type:'ferry').any?).to eq(true)
+      expect(Boat.where(type:'yacht').any?).to eq(true)
+      expect(Boat.where(type:'bike').any?).to eq(false)
+
+      expect(Boat.where(type:'ferry', color:'white').any?).to eq(true)
+      expect(Boat.where(type:'ferry', color:'blue').any?).to eq(false)
     end
   end
 

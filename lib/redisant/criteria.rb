@@ -24,8 +24,8 @@ class Criteria
     @criteria ||= {:where => {}}
   end
 
-  def where args
-    criteria[:where].merge!(args)
+  def where options
+    merge_options options
     self
   end
 
@@ -44,16 +44,16 @@ class Criteria
     result
   end
 
-  def first attributes={}
-    criteria[:where].merge!(attributes)
+  def first options={}
+    merge_options options
     criteria[:offset] = 0
     criteria[:limit] = 1
     criteria[:order] = :asc
     result
   end
 
-  def last attributes={}
-    criteria[:where].merge!(attributes)
+  def last options={}
+    merge_options options
     criteria[:offset] = 0
     criteria[:limit] = 1
     criteria[:order] = :desc
@@ -77,6 +77,12 @@ class Criteria
     self
   end
   
+  def any?
+    criteria[:exists] = true
+    criteria[:ids] = true
+    result
+  end
+
 
   def ids?
     criteria[:ids] == true
@@ -165,4 +171,10 @@ class Criteria
     @result = Query.new(self).run
   end
   
+  private
+ 
+  def merge_options options
+    criteria[:where].merge!(options)
+  end
+
 end

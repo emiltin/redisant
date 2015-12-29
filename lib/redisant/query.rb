@@ -16,7 +16,9 @@ class Query
       fetch
     end
 
-    if @criteria.ids?
+    if @criteria.criteria[:exists]
+      any?
+    elsif @criteria.ids?
       flatten_single_items @ids
     else
       load_objects
@@ -28,6 +30,9 @@ class Query
 
   private
 
+  def any?
+    @ids and @ids.any?
+  end
 
   def collect_keys
     @sub_keys = []

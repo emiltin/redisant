@@ -43,6 +43,16 @@ RSpec.describe Record do
     end
   end
 
+  describe "#any?" do
+    it "should be false if no records" do
+      expect(Record.any?).to eq(false)
+      record = Record.build
+      expect(Record.any?).to eq(true)
+      record.destroy
+      expect(Record.any?).to eq(false)
+    end
+  end
+
   describe "#dirty?" do
     it "should be false for new records without attributes" do
       record = Record.new
