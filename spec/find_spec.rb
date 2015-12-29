@@ -49,7 +49,7 @@ RSpec.describe Record do
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
       boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
 
-      expect(Boat.where(type:'ferry').where(color:'white').ids.result).to eq([1])
+      expect(Boat.where(type:'ferry').where(color:'white').ids).to eq([1])
       expect(Boat.where(type:'ferry').where(color:'blue').ids).to eq([])
       expect(Boat.where(type:'yacht').where(size:'small').ids).to eq([])
     end
@@ -347,15 +347,15 @@ RSpec.describe Record do
 
     describe "#ids on a relation" do
       it "should return object ids" do
-        expect(@boat1.sails.ids.result).to eq([1,2,3])
-        expect(@boat2.sails.ids.result).to eq([4,5,6])
+        expect(@boat1.sails.ids).to eq([1,2,3])
+        expect(@boat2.sails.ids).to eq([4,5,6])
       end
     end
 
     describe "#where and #ids on a relation" do
       it "should return correct ids" do
-        expect(@boat1.sails.where(type:'big').ids.result).to eq([2,3])
-        expect(@boat2.sails.where(type:'big').ids.result).to eq([5])
+        expect(@boat1.sails.where(type:'big').ids).to eq([2,3])
+        expect(@boat2.sails.where(type:'big').ids).to eq([5])
       end
     end
 
@@ -405,11 +405,11 @@ RSpec.describe Record do
 
     describe "#sort and #order on a relation" do
       it "should return last object" do
-        expect(@boat1.sails.sort(:color).ids.result).to eq([2,1,3])
-        expect(@boat1.sails.sort(:type).ids.result).to eq([2,3,1])
+        expect(@boat1.sails.sort(:color).ids).to eq([2,1,3])
+        expect(@boat1.sails.sort(:type).ids).to eq([2,3,1])
         
-        expect(@boat1.sails.sort(:color).order(:desc).ids.result).to eq([1,3,2])
-        expect(@boat1.sails.sort(:type).order(:desc).ids.result).to eq([1,2,3])
+        expect(@boat1.sails.sort(:color).order(:desc).ids).to eq([1,3,2])
+        expect(@boat1.sails.sort(:type).order(:desc).ids).to eq([1,2,3])
       end
     end
     
