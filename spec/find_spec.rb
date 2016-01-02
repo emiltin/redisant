@@ -18,6 +18,15 @@ end
 RSpec.describe Record do
 
   describe "#where" do
+    it "should find objects " do
+      boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
+      boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
+      boat3 = Boat.build id:3, type:'yacht', color: 'blue', size:'medium'
+
+      objects = Boat.where(type:'yacht').result.map! { |t| t.id }
+      expect(objects).to eq([2,3])
+    end
+
     it "should find objects by single attribute" do
       boat1 = Boat.build id:1, type:'ferry', color:'white', size:'big'
       boat2 = Boat.build id:2, type:'yacht', color: 'white', size:'small'
