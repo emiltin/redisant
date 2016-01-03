@@ -270,4 +270,62 @@ RSpec.describe Record do
       expect(ids).to eq([1,2,3])
     end
   end
+
+  describe "#load_attributes" do
+    it "should load all attributes if no keys specified" do
+      record = Record.build id: 1, type: 'bike', color: 'green'
+
+      record = Record.new id: 1
+      expect(record.attributes).to eq({})
+
+      record.load_attributes
+      expect(record.attributes).to eq({'type'=>'bike', 'color'=>'green'})
+    end
+
+    it "should load all attributes if all keys specified" do
+      record = Record.build id: 1, type: 'bike', color: 'green'
+
+      record = Record.new id: 1
+      expect(record.attributes).to eq({})
+
+      record.load_attributes [:type, :color]
+      expect(record.attributes).to eq({'type'=>'bike', 'color'=>'green'})
+    end
+
+    it "should load some attributes if keys specified" do
+      record = Record.build id: 1, type: 'bike', color: 'green'
+
+      record = Record.new id: 1
+      expect(record.attributes).to eq({})
+
+      record.load_attributes [:type]
+      expect(record.attributes).to eq({'type'=>'bike'})
+    end
+
+    it "should return nil for non-existing keys" do
+      record = Record.build id: 1, type: 'bike', color: 'green'
+
+      record = Record.new id: 1
+      expect(record.attributes).to eq({})
+
+      record.load_attributes [:color, :bingo]
+      expect(record.attributes).to eq({'color'=>'green', 'bingo'=>nil})
+    end
+
+    it "should resave only loaded attributes" do
+      record = Record.build id: 1, type: 'bike', color: 'green'
+
+      record = Record.new id: 1
+      expect(record.attributes).to eq({})
+
+      record.load_attributes [:color]
+      expect(record.attributes).to eq({'color'=>'green'})
+
+      record.set_attribute :color, 'red'
+      record.save
+
+      record = Record.find 1
+      expect(record.attributes).to eq({'type'=>'bike','color'=>'red'})
+    end
+  end
 end

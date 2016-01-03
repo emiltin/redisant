@@ -175,7 +175,7 @@ class Record
     end
   end
 
-  # all attributes
+  # multiple attributes
   def attributes= attributes
     raise Redisant::InvalidArgument.new("Invalid arguments") unless attributes.is_a? Hash
     attributes.each_pair do |key,value|
@@ -186,8 +186,15 @@ class Record
     end
   end
   
-  def load_attributes
-    decoded = decode_attributes($redis.hgetall(member_key('attributes')))
+  def load_attributes keys=nil
+    if keys
+      keys = keys.map { |key| key.to_s }
+      values = $redis.hmget(member_key('attributes'), keys)
+      raw = keys.zip(values).to_h
+    else
+      raw = $redis.hgetall(member_key('attributes'))
+    end
+    decoded = decode_attributes(raw)
     @attributes = restore_attribute_types decoded
     keep_attributes
   end
@@ -289,7 +296,11 @@ class Record
   def decode_attributes attributes
     decoded = {}
     attributes.each do |pair|
-      decoded[pair[0]] = JSON.parse pair[1], quirks_mode: true
+      if pair[1]==nil
+        decoded[pair[0]] = nil
+      else
+        decoded[pair[0]] = JSON.parse pair[1], quirks_mode: true
+      end
     end
     @attributes = decoded
   end
