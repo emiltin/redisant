@@ -11,7 +11,7 @@ module AttributeBuilder
         index name, type: options[:index]     # add index for attribute
       end
 
-      if options[:search]
+      if options[:search] || options[:unique]
         finder name, type: options[:search]   # add search for attribute
       end
 

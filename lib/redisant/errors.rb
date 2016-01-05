@@ -11,4 +11,10 @@ module Redisant
       super message
     end
   end
+
+  class ValidationFailed < Error
+    def initialize message
+      super message
+    end
+  end
 end

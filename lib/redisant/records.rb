@@ -11,6 +11,7 @@ class Record
   attr_reader :id
   attr_reader :attributes
   attr_reader :dirty
+  attr_reader :errors
 
   def initialize attributes=nil
     raise Redisant::InvalidArgument.new('Wrong arguments') unless attributes==nil or attributes.is_a? Hash
@@ -20,6 +21,7 @@ class Record
     @dirty = @attributes.keys
     setup_relations if respond_to? :setup_relations
     @id_saved = false
+    @errors = nil
   end
 
   def class_name
@@ -132,10 +134,37 @@ class Record
   end
 
   def save
+    return false unless validate
     make_unique_id
     add_id
     save_attributes
     true
+  end
+
+  def save!
+    raise Redisant::ValidationFailed.new('Validation failed') unless save
+  end
+
+  def validate
+    @errors = nil
+    self.class.attributes.each_pair do |key,options|
+      v = attribute(key)
+      if options[:required]
+        if v==nil
+          @errors ||= {}
+          @errors[key] = "is required"
+        end
+      end
+      if v && options[:unique]
+        conditions = {}
+        conditions[key] = v
+        if self.class.where(conditions).count > 0
+          @errors ||= {}
+          @errors[key] = "must be unique"
+        end
+      end
+    end
+    @errors == nil
   end
 
   def self.destroy_all
