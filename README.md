@@ -23,6 +23,10 @@ Or install it yourself as:
 
 ## Usage
 
+You need a Redis sever running to use this gem. An easy way to do this is via Docker:
+
+> docker run -d -p 6379:6379 redis
+
 TODO: Write usage instructions here
 
 ## Development
