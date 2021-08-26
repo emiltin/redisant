@@ -126,7 +126,8 @@ class Query
     criteria = @criteria.criteria
     
     sort = criteria[:sort]
-    order = criteria[:order].to_s || 'asc'
+    # use dup because string might be frozen, and we might need to modify it later
+    order = criteria[:order].to_s.dup || 'asc'
     
     if criteria[:limit]
       limit = [criteria[:offset] || 0, criteria[:limit]]
@@ -144,8 +145,7 @@ class Query
       by = 'nosort' unless criteria[:limit]==1
     end
     
-    args = { limit: limit, by: by, order: order }
-    ids = $redis.sort @final_key, args
+    ids = $redis.sort @final_key, limit: limit, by: by, order: order
     ids.map! { |t| t.to_i } if ids
   end
 
