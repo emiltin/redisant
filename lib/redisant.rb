@@ -1,7 +1,6 @@
-require "redisant/version"
-
 require 'redis'
 
+require_relative "redisant/version"
 require_relative 'redisant/connection'
 require_relative 'redisant/errors.rb'
 require_relative 'redisant/inflector'
