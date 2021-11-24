@@ -112,6 +112,7 @@ RSpec.describe HasMany do
     it "should return number of items" do
       @parts.each { |part| @machine1.parts.add part }
       expect(@machine1.parts.count).to eq(@parts.size)
+      expect(@machine2.parts.count).to eq(0)
     end
   end
 
@@ -132,6 +133,7 @@ RSpec.describe HasMany do
     it "should add items" do
       @parts.each { |part| @machine1.parts.add part }
       expect(ids @machine1.parts.all).to eq(ids @parts)      
+      expect(ids @machine2.parts.all).to eq([])
     end
 
     it "should not add the same items twice" do
